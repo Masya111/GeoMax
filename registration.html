@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Реєстрація</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  button {
+    width: 100%;
+    margin-top: 20px;
+    height: 35px;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  input[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Реєстрація</h2>
+  <form id="registrationForm">
+    <label for="name">Ім'я:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Пошта:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required>
+
+    <input type="submit" value="Register">
+    
+  </form>
+  <a href = "index.html"><button>I already have an account</button></a>
+</div>
+<script>
+class RegistrationForm {
+  constructor() {
+    this.form = document.getElementById('registrationForm');
+    this.form.addEventListener('submit', this.onSubmit.bind(this));
+  }
+
+  async onSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(this.form);
+    const requestData = {};
+    formData.forEach((value, key) => {
+      requestData[key] = value;
+    });
+
+    try {
+      const response = await fetch('https://6636740b415f4e1a5e27717b.mockapi.io/api/v1/User', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (response.ok) {
+        alert('Успішна реєстрація');
+        this.form.reset();
+
+        const newUser = await response.json();
+        const userId = newUser.id;
+
+        const updateResponse = await fetch(`https://6636740b415f4e1a5e27717b.mockapi.io/api/v1/User/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ score_fast: 0, score_flag: 0, score_quiz: 0 })
+        });
+
+        if (updateResponse.ok) {
+          console.log('Score_fast reset successfully');
+        } else {
+          console.log('Failed to reset score_fast');
+        }
+      } else {
+        console.log('Failed to create user');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      console.log('Failed to create user');
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const registrationForm = new RegistrationForm();
+});
+    </script>
+</body>
+</html>
